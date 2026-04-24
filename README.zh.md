@@ -8,7 +8,7 @@
   /Users/sky/Github/my-project [↙ main]                 Claude Opus 4.6 (3x) (high)
 ──────────────────────────────────────────────────────────────────────────────────────
   [Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
-  Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
+  Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
   ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 
@@ -71,10 +71,10 @@ copilot plugin install ./
 
 ### 上下文窗口与请求数
 
-实时进度条显示上下文用量。兼容旧/新两种 payload 结构，显示精确的已用/总量 token 数。Token 明细（in/out/cache/think）合并在同一分段。默认全部开启。颜色随用量变化——充足时绿色，紧张时黄色，不足时红色。
+实时进度条显示上下文用量。兼容旧/新两种 payload 结构，显示精确的已用/总量 token 数。Token 明细（in/out/cache/think）合并在同一分段。默认全部开启。颜色阈值按模型自适应：黄色阈值为 `100 - buffer%`（GPT 默认 15%，GPT-5-mini/GPT-4.1 为 24%，Claude 在分母 >=200k 时为 20%，否则 24%），红色固定 `>=95%`。
 
 ```
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
+Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
 ```
 
 - **Ctx** — 上下文进度条，精确显示 `已用/总量 百分比`
@@ -163,6 +163,7 @@ Copilot CLI 会话
     "showLinesChanged": true,
     "showEffort": true,
     "showLastCall": false,
+    "debugCtxDetails": false,
     "showCacheBreakdown": false,
     "showCost": true,
     "rainbowPath": true,
@@ -192,6 +193,7 @@ Copilot CLI 会话
 | `display.showLinesChanged` | `true` | 显示 `+42/-3` 代码增删行数 |
 | `display.showEffort` | `true` | 在模型徽标中显示 effort 级别和倍率 |
 | `display.showLastCall` | `false` | 以 `lastin/lastout` 显示最后一次 API 调用 token |
+| `display.debugCtxDetails` | `false` | 显示 Ctx 原始候选链（`ctx num:... den:...`）用于调试 |
 | `display.showCacheBreakdown` | `false` | 分别显示缓存读/写计数 |
 | `display.showCost` | `true` | 显示估算原价 API 成本（`≈$0.42`） |
 | `display.showPromptPreview` | `false` | 显示最近用户输入预览 |

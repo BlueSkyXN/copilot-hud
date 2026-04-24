@@ -50,6 +50,7 @@ All available fields with their defaults, sourced directly from `src/config.ts`:
     "showLinesChanged": true,
     "showEffort": true,
     "showLastCall": false,
+    "debugCtxDetails": false,
     "showCacheBreakdown": false,
     "showCost": true,
     "rainbowPath": true,
@@ -125,13 +126,14 @@ git:(main)            # enabled=true, showDirty=false, showAheadBehind=false
 
 #### Line 2 (context)
 
-The context bar and request count are always shown. These are optional additions:
+The context bar and request count are always shown. Ctx color thresholds are model-aware: yellow starts at `100 - buffer%` (GPT defaults 15%, GPT-5-mini/GPT-4.1 use 24%, Claude uses 20% at >=200k and 24% below), and red is fixed at `>=95%`. These are optional additions:
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `showTokenBreakdown` | boolean | `true` | Show cumulative in/out/cache/think tokens, e.g. `│ in:1.5M out:12.2k cache:1.4M think:2.1k` |
 | `showOutputSpeed` | boolean | `true` | Show output throughput, e.g. `│ 42 tok/s` |
 | `showLastCall` | boolean | `false` | Show last API call tokens, e.g. `│ lastin:76.0k lastout:200` |
+| `debugCtxDetails` | boolean | `false` | Show raw Ctx candidate chains for diagnostics, e.g. `│ ctx num:... den:...` |
 | `showCacheBreakdown` | boolean | `false` | Show cache read/write separately, e.g. `│ cache·R:1.5M W:0` |
 | `showCost` | boolean | `true` | Show the estimated raw API cost segment, e.g. `│ $0.42` |
 | `costColorMode` | string | `"dynamic"` | Coloring strategy for the cost segment. See below. |
@@ -232,7 +234,7 @@ Only the most essential information:
 Output:
 ```
 [Sonnet 4.6] │ my-project │ git:(main*)
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3
+Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3
 ```
 
 ---
@@ -264,7 +266,7 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3
 Output:
 ```
 [Sonnet 4.6 1x·medium] │ my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ $0.42 │ 42 tok/s
+Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ $0.42 │ 42 tok/s
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3
 ```
 
@@ -291,6 +293,7 @@ Everything enabled:
     "showLinesChanged": true,
     "showEffort": true,
     "showLastCall": true,
+    "debugCtxDetails": true,
     "showCacheBreakdown": true,
     "showCost": true,
     "rainbowPath": true,
@@ -302,7 +305,7 @@ Everything enabled:
 Output:
 ```
 [Opus 4.6 3x·high] │ /Users/you/projects/my-project │ git:(main* ↑2 ↓1) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 think:2.1k │ $0.42 │ 42 tok/s │ lastin:76.0k lastout:200
+Ctx ████░░░░░░ 70.0k/200k 35% │ ctx num:70.0k/-/-/70.0k/70.0k/70.0k den:200k/200k/- │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 think:2.1k │ $0.42 │ 42 tok/s │ lastin:76.0k lastout:200
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 

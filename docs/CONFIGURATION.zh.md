@@ -50,6 +50,7 @@ $EDITOR ~/.copilot/plugins/copilot-hud/config.json
     "showLinesChanged": true,
     "showEffort": true,
     "showLastCall": false,
+    "debugCtxDetails": false,
     "showCacheBreakdown": false,
     "showCost": true,
     "rainbowPath": true,
@@ -125,13 +126,14 @@ git:(main)            # enabled=true, showDirty=false, showAheadBehind=false
 
 #### 第2行（上下文行）
 
-上下文进度条和请求数始终显示。以下为可选项：
+上下文进度条和请求数始终显示。Ctx 颜色阈值按模型自适应：黄色阈值为 `100 - buffer%`（GPT 默认 15%，GPT-5-mini/GPT-4.1 为 24%，Claude 在分母 >=200k 时为 20%，否则 24%），红色固定 `>=95%`。以下为可选项：
 
 | 字段 | 类型 | 默认 | 说明 |
 |------|------|------|------|
 | `showTokenBreakdown` | boolean | `true` | 显示累计输入/输出/缓存/思考 token，例如 `│ in:1.5M out:12.2k cache:1.4M think:2.1k` |
 | `showOutputSpeed` | boolean | `true` | 显示输出速度，例如 `│ 42 tok/s` |
 | `showLastCall` | boolean | `false` | 显示最近一次 API 调用 token，例如 `│ lastin:76.0k lastout:200` |
+| `debugCtxDetails` | boolean | `false` | 调试模式显示 Ctx 原始候选链，例如 `│ ctx num:... den:...` |
 | `showCacheBreakdown` | boolean | `false` | 分别显示缓存读/写，例如 `│ cache·R:1.5M W:0` |
 | `showCost` | boolean | `true` | 显示估算原价 API 成本，例如 `│ $0.42` |
 | `costColorMode` | string | `"dynamic"` | 成本分段配色策略，详见下表 |
@@ -232,7 +234,7 @@ brightRed  brightGreen  brightYellow  brightBlue  brightMagenta  brightCyan
 输出效果：
 ```
 [Sonnet 4.6] │ my-project │ git:(main*)
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3
+Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3
 ```
 
 ---
@@ -264,7 +266,7 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3
 输出效果：
 ```
 [Sonnet 4.6 1x·medium] │ my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ $0.42 │ 42 tok/s
+Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ $0.42 │ 42 tok/s
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3
 ```
 
@@ -291,6 +293,7 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:1
     "showLinesChanged": true,
     "showEffort": true,
     "showLastCall": true,
+    "debugCtxDetails": true,
     "showCacheBreakdown": true,
     "showCost": true,
     "rainbowPath": true,
@@ -302,7 +305,7 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:1
 输出效果：
 ```
 [Opus 4.6 3x·high] │ /Users/you/projects/my-project │ git:(main* ↑2 ↓1) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 think:2.1k │ $0.42 │ 42 tok/s │ lastin:76.0k lastout:200
+Ctx ████░░░░░░ 70.0k/200k 35% │ ctx num:70.0k/-/-/70.0k/70.0k/70.0k den:200k/200k/- │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 think:2.1k │ $0.42 │ 42 tok/s │ lastin:76.0k lastout:200
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 

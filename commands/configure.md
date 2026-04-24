@@ -27,7 +27,7 @@ Ask which level of detail to show:
 - question: "How much info should the HUD show? (Model, project, context bar, and reqs are always shown.)"
 - multiSelect: false
 - options:
-  - "Full — session name, duration, token breakdown, output speed, lines changed, effort, cost, last call, and cache breakdown"
+  - "Full — session name, duration, token breakdown, output speed, lines changed, effort, cost, last call, cache breakdown, and Ctx debug chain"
   - "Standard — session name, duration, token breakdown, output speed, lines changed, effort, and cost"
   - "Minimal — just the basics, nothing extra"
 
@@ -99,9 +99,9 @@ Map the answers to config keys:
 
 | Q1 Selection | Config keys |
 |-------------|------------|
-| Full | `display.showSessionName: true, showSessionDuration: true, showTokenBreakdown: true, showOutputSpeed: true, showLinesChanged: true, showEffort: true, showCost: true, showLastCall: true, showCacheBreakdown: true` |
-| Standard | `display.showSessionName: true, showSessionDuration: true, showTokenBreakdown: true, showOutputSpeed: true, showLinesChanged: true, showEffort: true, showCost: true, showLastCall: false, showCacheBreakdown: false` |
-| Minimal | `display.showSessionName: false, showSessionDuration: false, showTokenBreakdown: false, showOutputSpeed: false, showLinesChanged: false, showEffort: false, showCost: false, showLastCall: false, showCacheBreakdown: false` |
+| Full | `display.showSessionName: true, showSessionDuration: true, showTokenBreakdown: true, showOutputSpeed: true, showLinesChanged: true, showEffort: true, showCost: true, showLastCall: true, showCacheBreakdown: true, debugCtxDetails: true` |
+| Standard | `display.showSessionName: true, showSessionDuration: true, showTokenBreakdown: true, showOutputSpeed: true, showLinesChanged: true, showEffort: true, showCost: true, showLastCall: false, showCacheBreakdown: false, debugCtxDetails: false` |
+| Minimal | `display.showSessionName: false, showSessionDuration: false, showTokenBreakdown: false, showOutputSpeed: false, showLinesChanged: false, showEffort: false, showCost: false, showLastCall: false, showCacheBreakdown: false, debugCtxDetails: false` |
 
 | Q2 Selection | Config key |
 |-------------|------------|

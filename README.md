@@ -8,7 +8,7 @@ English | [中文](README.zh.md)
   /Users/sky/Github/my-project [↙ main]                 Claude Opus 4.6 (3x) (high)
 ──────────────────────────────────────────────────────────────────────────────────────
   [Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
-  Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
+  Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
   ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 
@@ -67,10 +67,10 @@ Shows which model you're using, your project path, git branch, session info, and
 ```
 
 ### Context Window and Requests
-A live progress bar showing how much of the context window you've used. It supports both legacy and newer payload schemas, with precise used/total token counts. Changes color as you approach the limit — green when you have plenty of room, yellow when it's getting tight, red when you're running low. Token breakdown (in/out/cache/think) is shown in a single segment. All metrics are enabled by default.
+A live progress bar showing how much of the context window you've used. It supports both legacy and newer payload schemas, with precise used/total token counts. Color thresholds are model-aware: yellow starts at `100 - buffer%` (GPT defaults 15%, GPT-5-mini/GPT-4.1 use 24%, Claude uses 20% at >=200k and 24% below), and red is fixed at `>=95%`. Token breakdown (in/out/cache/think) is shown in a single segment. All metrics are enabled by default.
 
 ```
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
+Ctx ████░░░░░░ 70.0k/200k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
 ```
 
 - **Ctx** — context bar with exact token usage `used/total percentage`
@@ -155,6 +155,7 @@ Edit `~/.copilot/plugins/copilot-hud/config.json`:
     "showLinesChanged": true,
     "showEffort": true,
     "showLastCall": false,
+    "debugCtxDetails": false,
     "showCacheBreakdown": false,
     "showCost": true,
     "rainbowPath": true,
@@ -184,6 +185,7 @@ Or run `/copilot-hud:configure` inside a Copilot session for guided setup.
 | `display.showLinesChanged` | `true` | Show `+42/-3` lines added/removed |
 | `display.showEffort` | `true` | Show effort level and multiplier in model badge |
 | `display.showLastCall` | `false` | Show last API call token counts as `lastin/lastout` |
+| `display.debugCtxDetails` | `false` | Show raw Ctx candidate chains (`ctx num:... den:...`) for debugging |
 | `display.showCacheBreakdown` | `false` | Show separate cache read/write counts |
 | `display.showCost` | `true` | Show estimated raw API cost (`≈$0.42`) |
 | `display.showPromptPreview` | `false` | Show last user prompt preview |

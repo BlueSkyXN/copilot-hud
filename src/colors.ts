@@ -41,9 +41,9 @@ export function bold(text: string): string {
   return `${code}${text}${RESET}`;
 }
 
-export function getContextColor(percent: number): string {
-  if (percent >= 85) return 'red';
-  if (percent >= 70) return 'yellow';
+export function getContextColor(percent: number, yellowAt: number = 70, redAt: number = 85): string {
+  if (percent >= redAt) return 'red';
+  if (percent >= yellowAt) return 'yellow';
   return 'green';
 }
 

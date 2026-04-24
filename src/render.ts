@@ -1,7 +1,7 @@
 import { basename, sep } from 'node:path';
 import { colorize, dim, RESET, getContextColor, renderBar, rainbow } from './colors.js';
 import { summariseTools } from './state.js';
-import { getModelPricing, estimateCost, formatCost } from './pricing.js';
+import { getModelPricing, estimateCost, formatCost, getContextColorThresholds } from './pricing.js';
 import type { RenderContext } from './types.js';
 
 const TOOL_ICONS: Record<string, string> = {
@@ -52,6 +52,26 @@ function formatTokens(n: number): string {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
   return `${n}`;
+}
+
+function formatDenominator(n: number): string {
+  if (n >= 1000000) return `${Math.round(n / 1000000)}M`;
+  if (n >= 1000) return `${Math.round(n / 1000)}k`;
+  return `${Math.round(n)}`;
+}
+
+function formatTokensUpperK(n: number): string {
+  if (n >= 1000000) return `${Math.round(n / 1000000)}M`;
+  if (n >= 1000) return `${Math.round(n / 1000)}K`;
+  return `${Math.round(n)}`;
+}
+
+function formatOptionalTokens(n: number | undefined): string {
+  return n === undefined ? '-' : formatTokens(n);
+}
+
+function formatOptionalDenominator(n: number | undefined): string {
+  return n === undefined ? '-' : formatDenominator(n);
 }
 
 /**
@@ -189,14 +209,52 @@ export function renderContextLine(ctx: RenderContext): string | null {
     ?? (cw?.used_tokens !== undefined && totalSize ? Math.round(cw.used_tokens / totalSize * 100) : undefined)
     ?? (cw?.remaining_tokens !== undefined && totalSize ? Math.round((totalSize - cw.remaining_tokens) / totalSize * 100) : undefined)
     ?? 0;
-  const bar = renderBar(usedPct, 10, getContextColor);
-  const color = getContextColor(usedPct);
+  const num1 = cw?.raw_current_context_tokens;
+  const num4 = (cw?.raw_context_window_size !== undefined && cw?.remaining_tokens !== undefined)
+    ? Math.max(0, cw.raw_context_window_size - cw.remaining_tokens)
+    : undefined;
+  const num6 = (cw?.raw_displayed_context_limit !== undefined && cw?.modern_used_percentage !== undefined)
+    ? Math.round((cw.modern_used_percentage / 100) * cw.raw_displayed_context_limit)
+    : undefined;
+  const thresholds = getContextColorThresholds(session.model?.id, totalSize);
+  const contextColor = (percent: number): string => getContextColor(percent, thresholds.yellowAt, thresholds.redAt);
+  const bar = renderBar(usedPct, 10, contextColor);
+  const color = contextColor(usedPct);
   if (totalSize) {
-    const usedTokens = cw?.used_tokens
+    const usedTokens = num1
+      ?? num4
+      ?? num6
+      ?? cw?.used_tokens
       ?? (cw?.remaining_tokens !== undefined ? totalSize - cw.remaining_tokens : Math.round(usedPct * totalSize / 100));
-    parts.push(`${dim('Ctx')} ${bar} ${colorize(`${formatTokens(usedTokens)}/${formatTokens(totalSize)}`, color)} ${colorize(`${usedPct}%`, color)}`);
+    const legacyTotal = cw?.raw_context_window_size;
+    let totalText = formatDenominator(totalSize);
+    if (legacyTotal !== undefined && legacyTotal !== totalSize) {
+      totalText += `(${formatTokensUpperK(legacyTotal)})`;
+    }
+    parts.push(`${dim('Ctx')} ${bar} ${colorize(`${formatTokens(usedTokens)}/${totalText}`, color)} ${colorize(`${usedPct}%`, color)}`);
   } else {
     parts.push(`${dim('Ctx')} ${bar} ${colorize(`${usedPct}%`, color)}`);
+  }
+
+  if (config.display.debugCtxDetails) {
+    const numCandidates = [
+      num1,
+      cw?.raw_used_tokens,
+      cw?.raw_consumed_tokens,
+      num4,
+      (cw?.raw_context_window_size !== undefined && cw?.used_percentage !== undefined)
+        ? Math.round((cw.used_percentage / 100) * cw.raw_context_window_size)
+        : undefined,
+      num6,
+    ];
+    const denCandidates = [
+      cw?.raw_displayed_context_limit,
+      cw?.raw_context_window_size,
+      cw?.raw_max_tokens,
+    ];
+    if (numCandidates.some((v) => v !== undefined) || denCandidates.some((v) => v !== undefined)) {
+      parts.push(dim(`ctx num:${numCandidates.map(formatOptionalTokens).join('/')} den:${denCandidates.map(formatOptionalDenominator).join('/')}`));
+    }
   }
 
   // Premium requests

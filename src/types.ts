@@ -51,6 +51,19 @@ export interface SessionData {
     total_reasoning_tokens?: number;
     last_call_input_tokens?: number;
     last_call_output_tokens?: number;
+    // Raw schema variants for side-by-side context diagnostics
+    modern_used_tokens?: number;
+    modern_context_window_size?: number;
+    modern_used_percentage?: number;
+    legacy_used_tokens?: number;
+    legacy_context_window_size?: number;
+    legacy_used_percentage?: number;
+    raw_used_tokens?: number;
+    raw_consumed_tokens?: number;
+    raw_current_context_tokens?: number;
+    raw_context_window_size?: number;
+    raw_max_tokens?: number;
+    raw_displayed_context_limit?: number;
     current_usage?: {
       input_tokens?: number;
       output_tokens?: number;

@@ -8,6 +8,11 @@ export interface ModelPricing {
   cacheRead: number; // $/M tokens
 }
 
+export interface ContextColorThresholds {
+  yellowAt: number;
+  redAt: number;
+}
+
 // Built-in pricing table keyed by model ID patterns
 const BUILTIN_PRICING: Record<string, ModelPricing> = {
   // Anthropic Claude — input priced at cache_create rate (1.25× base input)
@@ -38,6 +43,40 @@ const BUILTIN_PRICING: Record<string, ModelPricing> = {
   // xAI
   'grok-code-fast-1': { input: 0.20, output: 1.50, cacheRead: 0.02 },
 };
+
+const CONTEXT_RED_THRESHOLD = 95;
+const LEGACY_CONTEXT_THRESHOLDS: ContextColorThresholds = { yellowAt: 70, redAt: 85 };
+
+/**
+ * Resolve model-aware Ctx color thresholds from observed buffer behavior:
+ * - gpt-5-mini / gpt-4.1: 24% buffer (yellow at 76%)
+ * - other gpt-* models: 15% buffer (yellow at 85%)
+ * - claude-* models: >=200k window => 20% buffer (yellow at 80%), else 24% (yellow at 76%)
+ * - fallback: legacy fixed thresholds (yellow 70%, red 85%)
+ */
+export function getContextColorThresholds(
+  modelId: string | undefined,
+  contextWindowSize: number | undefined,
+): ContextColorThresholds {
+  const id = modelId?.toLowerCase();
+  if (!id) return LEGACY_CONTEXT_THRESHOLDS;
+
+  let bufferPct: number | undefined;
+  if (id.startsWith('gpt-5-mini') || id.startsWith('gpt-4.1')) {
+    bufferPct = 24;
+  } else if (id.startsWith('gpt-')) {
+    bufferPct = 15;
+  } else if (id.startsWith('claude-')) {
+    bufferPct = contextWindowSize !== undefined && contextWindowSize >= 200_000 ? 20 : 24;
+  }
+
+  if (bufferPct === undefined) return LEGACY_CONTEXT_THRESHOLDS;
+
+  return {
+    yellowAt: Math.max(0, Math.min(CONTEXT_RED_THRESHOLD - 1, 100 - bufferPct)),
+    redAt: CONTEXT_RED_THRESHOLD,
+  };
+}
 
 /** Resolve pricing for a model ID, with optional user overrides */
 export function getModelPricing(

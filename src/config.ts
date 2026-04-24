@@ -20,6 +20,7 @@ export interface HudConfig {
     showLinesChanged: boolean;
     showEffort: boolean;
     showLastCall: boolean;
+    debugCtxDetails: boolean;
     showCacheBreakdown: boolean;
     showCost: boolean;
     rainbowPath: boolean;
@@ -59,6 +60,7 @@ const DEFAULTS: HudConfig = {
     showLinesChanged: true,
     showEffort: true,
     showLastCall: false,
+    debugCtxDetails: false,
     showCacheBreakdown: false,
     showCost: true,
     rainbowPath: true,

@@ -86,21 +86,54 @@ function pickContextWindow(root: JsonObject): SessionData['context_window'] | un
     ?? asObject(usage?.context_window);
   if (!context) return undefined;
 
+  const rawUsedTokens = readNumber(context, 'used_tokens');
+  const rawConsumedTokens = readNumber(context, 'consumed_tokens');
+  const rawCurrentContextTokens = readNumber(context, 'current_context_tokens');
+  const rawContextWindowSize = readNumber(context, 'context_window_size');
+  const rawMaxTokens = readNumber(context, 'max_tokens');
+  const rawDisplayedContextLimit = readNumber(context, 'displayed_context_limit');
+
+  const modernLimit = rawDisplayedContextLimit;
+  const modernUsed = rawCurrentContextTokens;
+  const modernPct = readNumber(context, 'current_context_used_percentage');
+
+  const legacyLimit = firstDefined(rawContextWindowSize, rawMaxTokens);
+  const legacyUsed = firstDefined(rawUsedTokens, rawConsumedTokens);
+  const legacyPct = readNumber(context, 'used_percentage');
+  const remainingTokens = readNumber(context, 'remaining_tokens');
+
+  const derivedLegacyUsed = (
+    legacyLimit !== undefined &&
+    remainingTokens !== undefined
+  ) ? Math.max(0, legacyLimit - remainingTokens) : undefined;
+  const resolvedLegacyUsed = firstDefined(
+    legacyUsed,
+    derivedLegacyUsed,
+    (legacyLimit !== undefined && legacyPct !== undefined)
+      ? Math.round((legacyPct / 100) * legacyLimit)
+      : undefined,
+  );
+
+  const preferModern = modernLimit !== undefined && (modernUsed !== undefined || modernPct !== undefined);
+  const derivedModernPct = (
+    modernLimit !== undefined &&
+    modernLimit > 0 &&
+    modernUsed !== undefined
+  ) ? Math.round((modernUsed / modernLimit) * 100) : undefined;
+
   const currentUsage = asObject(context.current_usage);
   return {
-    used_percentage: firstDefined(readNumber(context, 'used_percentage'), readNumber(context, 'current_context_used_percentage')),
+    used_percentage: preferModern
+      ? firstDefined(modernPct, derivedModernPct, legacyPct)
+      : firstDefined(legacyPct, modernPct),
     remaining_percentage: readNumber(context, 'remaining_percentage'),
     remaining_tokens: readNumber(context, 'remaining_tokens'),
-    used_tokens: firstDefined(
-      readNumber(context, 'used_tokens'),
-      readNumber(context, 'consumed_tokens'),
-      readNumber(context, 'current_context_tokens'),
-    ),
-    context_window_size: firstDefined(
-      readNumber(context, 'context_window_size'),
-      readNumber(context, 'max_tokens'),
-      readNumber(context, 'displayed_context_limit'),
-    ),
+    used_tokens: preferModern
+      ? firstDefined(modernUsed, resolvedLegacyUsed)
+      : firstDefined(resolvedLegacyUsed, modernUsed),
+    context_window_size: preferModern
+      ? modernLimit
+      : firstDefined(legacyLimit, modernLimit),
     total_tokens: readNumber(context, 'total_tokens'),
     total_input_tokens: firstDefined(readNumber(context, 'total_input_tokens'), readNumber(context, 'input_tokens_total')),
     total_output_tokens: firstDefined(readNumber(context, 'total_output_tokens'), readNumber(context, 'output_tokens_total')),
@@ -109,6 +142,18 @@ function pickContextWindow(root: JsonObject): SessionData['context_window'] | un
     total_reasoning_tokens: firstDefined(readNumber(context, 'total_reasoning_tokens'), readNumber(context, 'reasoning_tokens_total')),
     last_call_input_tokens: readNumber(context, 'last_call_input_tokens'),
     last_call_output_tokens: readNumber(context, 'last_call_output_tokens'),
+    modern_used_tokens: modernUsed,
+    modern_context_window_size: modernLimit,
+    modern_used_percentage: modernPct,
+    legacy_used_tokens: resolvedLegacyUsed,
+    legacy_context_window_size: legacyLimit,
+    legacy_used_percentage: legacyPct,
+    raw_used_tokens: rawUsedTokens,
+    raw_consumed_tokens: rawConsumedTokens,
+    raw_current_context_tokens: rawCurrentContextTokens,
+    raw_context_window_size: rawContextWindowSize,
+    raw_max_tokens: rawMaxTokens,
+    raw_displayed_context_limit: rawDisplayedContextLimit,
     current_usage: currentUsage ? {
       input_tokens: readNumber(currentUsage, 'input_tokens'),
       output_tokens: readNumber(currentUsage, 'output_tokens'),
