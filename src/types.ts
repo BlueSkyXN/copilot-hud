@@ -48,6 +48,7 @@ export interface SessionData {
     total_output_tokens?: number;
     total_cache_read_tokens?: number;
     total_cache_write_tokens?: number;
+    total_reasoning_tokens?: number;
     last_call_input_tokens?: number;
     last_call_output_tokens?: number;
     current_usage?: {

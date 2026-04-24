@@ -118,7 +118,7 @@ git:(main)            # enabled=true, showDirty=false, showAheadBehind=false
 | 字段 | 类型 | 默认 | 说明 |
 |------|------|------|------|
 | `showSessionName` | boolean | `true` | 显示会话名称，例如 `│ Creating README` |
-| `showSessionDuration` | boolean | `true` | 显示会话时长，例如 `│ ⏱ 5m` |
+| `showSessionDuration` | boolean | `true` | 显示 API/会话时长，例如 `│ ⏱ 22m/1h10m` |
 | `showLinesChanged` | boolean | `true` | 显示新增/删除行数，例如 `│ +42/-3` |
 | `showEffort` | boolean | `true` | 在模型标识中显示努力等级和倍率，例如 `[Opus 4.6 3x·high]` |
 | `rainbowPath` | boolean | `true` | 项目路径逐字符彩虹渐变。设为 `false` 时回退到 `colors.project` 纯色。 |
@@ -129,9 +129,9 @@ git:(main)            # enabled=true, showDirty=false, showAheadBehind=false
 
 | 字段 | 类型 | 默认 | 说明 |
 |------|------|------|------|
-| `showTokenBreakdown` | boolean | `true` | 显示累计输入/输出/缓存 token，例如 `│ in:1.5M out:12.2k cache:1.4M` |
+| `showTokenBreakdown` | boolean | `true` | 显示累计输入/输出/缓存/思考 token，例如 `│ in:1.5M out:12.2k cache:1.4M think:2.1k` |
 | `showOutputSpeed` | boolean | `true` | 显示输出速度，例如 `│ 42 tok/s` |
-| `showLastCall` | boolean | `false` | 显示最近一次 API 调用 token，例如 `│ last:76.0k→200` |
+| `showLastCall` | boolean | `false` | 显示最近一次 API 调用 token，例如 `│ lastin:76.0k lastout:200` |
 | `showCacheBreakdown` | boolean | `false` | 分别显示缓存读/写，例如 `│ cache·R:1.5M W:0` |
 | `showCost` | boolean | `true` | 显示估算原价 API 成本，例如 `│ $0.42` |
 | `costColorMode` | string | `"dynamic"` | 成本分段配色策略，详见下表 |
@@ -263,8 +263,8 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3
 
 输出效果：
 ```
-[Sonnet 4.6 1x·medium] │ my-project │ git:(main* ↑2) │ Creating README │ ⏱ 5m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M │ $0.42 │ 42 tok/s
+[Sonnet 4.6 1x·medium] │ my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
+Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ $0.42 │ 42 tok/s
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3
 ```
 
@@ -301,8 +301,8 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:1
 
 输出效果：
 ```
-[Opus 4.6 3x·high] │ /Users/you/projects/my-project │ git:(main* ↑2 ↓1) │ Creating README │ ⏱ 5m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 │ $0.42 │ 42 tok/s │ last:76.0k→200
+[Opus 4.6 3x·high] │ /Users/you/projects/my-project │ git:(main* ↑2 ↓1) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
+Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 think:2.1k │ $0.42 │ 42 tok/s │ lastin:76.0k lastout:200
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 

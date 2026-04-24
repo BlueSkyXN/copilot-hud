@@ -88,16 +88,25 @@ function pickContextWindow(root: JsonObject): SessionData['context_window'] | un
 
   const currentUsage = asObject(context.current_usage);
   return {
-    used_percentage: readNumber(context, 'used_percentage'),
+    used_percentage: firstDefined(readNumber(context, 'used_percentage'), readNumber(context, 'current_context_used_percentage')),
     remaining_percentage: readNumber(context, 'remaining_percentage'),
     remaining_tokens: readNumber(context, 'remaining_tokens'),
-    used_tokens: firstDefined(readNumber(context, 'used_tokens'), readNumber(context, 'consumed_tokens')),
-    context_window_size: firstDefined(readNumber(context, 'context_window_size'), readNumber(context, 'max_tokens')),
+    used_tokens: firstDefined(
+      readNumber(context, 'used_tokens'),
+      readNumber(context, 'consumed_tokens'),
+      readNumber(context, 'current_context_tokens'),
+    ),
+    context_window_size: firstDefined(
+      readNumber(context, 'context_window_size'),
+      readNumber(context, 'max_tokens'),
+      readNumber(context, 'displayed_context_limit'),
+    ),
     total_tokens: readNumber(context, 'total_tokens'),
     total_input_tokens: firstDefined(readNumber(context, 'total_input_tokens'), readNumber(context, 'input_tokens_total')),
     total_output_tokens: firstDefined(readNumber(context, 'total_output_tokens'), readNumber(context, 'output_tokens_total')),
     total_cache_read_tokens: readNumber(context, 'total_cache_read_tokens'),
     total_cache_write_tokens: readNumber(context, 'total_cache_write_tokens'),
+    total_reasoning_tokens: firstDefined(readNumber(context, 'total_reasoning_tokens'), readNumber(context, 'reasoning_tokens_total')),
     last_call_input_tokens: readNumber(context, 'last_call_input_tokens'),
     last_call_output_tokens: readNumber(context, 'last_call_output_tokens'),
     current_usage: currentUsage ? {

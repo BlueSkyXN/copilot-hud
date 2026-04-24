@@ -118,7 +118,7 @@ git:(main)            # enabled=true, showDirty=false, showAheadBehind=false
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `showSessionName` | boolean | `true` | Show the session title, e.g. `│ Creating README` |
-| `showSessionDuration` | boolean | `true` | Show wall-clock session time, e.g. `│ ⏱ 5m` |
+| `showSessionDuration` | boolean | `true` | Show API/session duration, e.g. `│ ⏱ 22m/1h10m` |
 | `showLinesChanged` | boolean | `true` | Show lines added/removed, e.g. `│ +42/-3` |
 | `showEffort` | boolean | `true` | Show effort level and multiplier in model badge, e.g. `[Opus 4.6 3x·high]` |
 | `rainbowPath` | boolean | `true` | Render the project path as a per-character rainbow gradient. When `false`, falls back to `colors.project` (solid color). |
@@ -129,9 +129,9 @@ The context bar and request count are always shown. These are optional additions
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `showTokenBreakdown` | boolean | `true` | Show cumulative in/out/cache tokens, e.g. `│ in:1.5M out:12.2k cache:1.4M` |
+| `showTokenBreakdown` | boolean | `true` | Show cumulative in/out/cache/think tokens, e.g. `│ in:1.5M out:12.2k cache:1.4M think:2.1k` |
 | `showOutputSpeed` | boolean | `true` | Show output throughput, e.g. `│ 42 tok/s` |
-| `showLastCall` | boolean | `false` | Show last API call tokens, e.g. `│ last:76.0k→200` |
+| `showLastCall` | boolean | `false` | Show last API call tokens, e.g. `│ lastin:76.0k lastout:200` |
 | `showCacheBreakdown` | boolean | `false` | Show cache read/write separately, e.g. `│ cache·R:1.5M W:0` |
 | `showCost` | boolean | `true` | Show the estimated raw API cost segment, e.g. `│ $0.42` |
 | `costColorMode` | string | `"dynamic"` | Coloring strategy for the cost segment. See below. |
@@ -263,8 +263,8 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3
 
 Output:
 ```
-[Sonnet 4.6 1x·medium] │ my-project │ git:(main* ↑2) │ Creating README │ ⏱ 5m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M │ $0.42 │ 42 tok/s
+[Sonnet 4.6 1x·medium] │ my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
+Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ $0.42 │ 42 tok/s
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3
 ```
 
@@ -301,8 +301,8 @@ Everything enabled:
 
 Output:
 ```
-[Opus 4.6 3x·high] │ /Users/you/projects/my-project │ git:(main* ↑2 ↓1) │ Creating README │ ⏱ 5m │ +42/-3
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 │ $0.42 │ 42 tok/s │ last:76.0k→200
+[Opus 4.6 3x·high] │ /Users/you/projects/my-project │ git:(main* ↑2 ↓1) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
+Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache·R:1.4M W:0 think:2.1k │ $0.42 │ 42 tok/s │ lastin:76.0k lastout:200
 ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 

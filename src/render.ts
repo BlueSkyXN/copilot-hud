@@ -37,12 +37,15 @@ function formatProjectPath(cwd: string, levels: 0 | 1 | 2 | 3): string {
 }
 
 function formatDuration(ms: number): string {
-  const mins = Math.floor(ms / 60000);
-  if (mins < 1) return '<1m';
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const days = Math.floor(mins / (24 * 60));
+  const hours = Math.floor((mins % (24 * 60)) / 60);
   const rem = mins % 60;
-  return `${hours}h${rem}m`;
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  parts.push(`${rem}m`);
+  return parts.join('');
 }
 
 function formatTokens(n: number): string {
@@ -75,13 +78,13 @@ function getCostColor(mode: 'dynamic' | 'simple' | 'none', cost: number, reqs: n
   return 'red';
 }
 
-/** Parse effort level and multiplier from display_name like "claude-opus-4.6 (3x) (high)" */
+/** Parse effort level and multiplier from display_name like "claude-opus-4.6 (0.9x) (high)" */
 function parseModelMeta(displayName: string): { shortName: string; multiplier?: string; effort?: string } {
   let name = displayName;
   let multiplier: string | undefined;
   let effort: string | undefined;
 
-  const mxMatch = name.match(/\((\d+x)\)/);
+  const mxMatch = name.match(/\(((?:\d+(?:\.\d+)?)x)\)/i);
   if (mxMatch) {
     multiplier = mxMatch[1];
     name = name.replace(mxMatch[0], '').trim();
@@ -100,6 +103,10 @@ function parseModelMeta(displayName: string): { shortName: string; multiplier?: 
     .trim();
 
   return { shortName, multiplier, effort };
+}
+
+function formatReqs(rawReqs: number): string {
+  return `${rawReqs}`;
 }
 
 // Line 1: [Model (3x)(high)] │ project │ git:(branch*) │ session-name │ ⏱ 5m │ +42/-3
@@ -144,10 +151,17 @@ export function renderProjectLine(ctx: RenderContext): string {
     parts.push(dim(session.session_name));
   }
 
-  // Session duration
-  if (config.display.showSessionDuration && session.cost?.total_duration_ms !== undefined) {
-    const duration = formatDuration(session.cost.total_duration_ms);
-    parts.push(dim(`⏱ ${duration}`));
+  // Session + API duration
+  if (config.display.showSessionDuration && session.cost) {
+    const apiMs = session.cost.total_api_duration_ms;
+    const totalMs = session.cost.total_duration_ms;
+    if (apiMs !== undefined && totalMs !== undefined) {
+      parts.push(dim(`⏱ ${formatDuration(apiMs)}/${formatDuration(totalMs)}`));
+    } else if (totalMs !== undefined) {
+      parts.push(dim(`⏱ ${formatDuration(totalMs)}`));
+    } else if (apiMs !== undefined) {
+      parts.push(dim(`⏱ ${formatDuration(apiMs)}`));
+    }
   }
 
   // Lines added/removed
@@ -187,7 +201,7 @@ export function renderContextLine(ctx: RenderContext): string | null {
 
   // Premium requests
   if (session.cost?.total_premium_requests !== undefined) {
-    parts.push(`${dim('Reqs')} ${colorize(`${session.cost.total_premium_requests}`, 'brightBlue')}`);
+    parts.push(`${dim('Reqs')} ${colorize(formatReqs(session.cost.total_premium_requests), 'brightBlue')}`);
   }
 
   // Cumulative in/out + cache as one segment
@@ -196,6 +210,7 @@ export function renderContextLine(ctx: RenderContext): string | null {
     const totalOut = cw.total_output_tokens ?? 0;
     const cacheRead = cw.total_cache_read_tokens ?? cw.current_usage?.cache_read_input_tokens ?? 0;
     const cacheWrite = cw.total_cache_write_tokens ?? cw.current_usage?.cache_creation_input_tokens ?? 0;
+    const think = cw.total_reasoning_tokens ?? 0;
 
     if (totalIn > 0 || totalOut > 0) {
       let tokenInfo = `in:${formatTokens(totalIn)} out:${formatTokens(totalOut)}`;
@@ -206,6 +221,9 @@ export function renderContextLine(ctx: RenderContext): string | null {
         if (totalCache > 0) {
           tokenInfo += ` cache:${formatTokens(totalCache)}`;
         }
+      }
+      if (think > 0) {
+        tokenInfo += ` think:${formatTokens(think)}`;
       }
       parts.push(dim(tokenInfo));
     }
@@ -241,7 +259,7 @@ export function renderContextLine(ctx: RenderContext): string | null {
   if (config.display.showLastCall && cw?.last_call_input_tokens !== undefined) {
     const lastIn = cw.last_call_input_tokens;
     const lastOut = cw.last_call_output_tokens ?? 0;
-    parts.push(dim(`last:${formatTokens(lastIn)}→${formatTokens(lastOut)}`));
+    parts.push(dim(`lastin:${formatTokens(lastIn)} lastout:${formatTokens(lastOut)}`));
   }
 
   if (parts.length === 0) return null;

@@ -7,8 +7,8 @@ English | [中文](README.zh.md)
 ```
   /Users/sky/Github/my-project [↙ main]                 Claude Opus 4.6 (3x) (high)
 ──────────────────────────────────────────────────────────────────────────────────────
-  [Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 5m │ +42/-3
-  Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M │ 42 tok/s
+  [Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
+  Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
   ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 
@@ -63,29 +63,29 @@ copilot plugin install ./
 Shows which model you're using, your project path, git branch, session info, and code changes at a glance. The model name is shortened for readability — `claude-opus-4.6 (3x) (high)` becomes `[Opus 4.6 3x·high]`. The model badge parses effort level (high/medium/low) and multiplier (3x) from `display_name`. Path defaults to the full absolute path (configurable with `pathLevels` 0–3). Lines added/removed are shown with green/red coloring.
 
 ```
-[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ ⏱ 5m │ +42/-3
+[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ ⏱ 22m/1h10m │ +42/-3
 ```
 
 ### Context Window and Requests
-A live progress bar showing how much of the context window you've used. Uses the API-provided `used_percentage` directly, with precise used/total token counts. Changes color as you approach the limit — green when you have plenty of room, yellow when it's getting tight, red when you're running low. Token breakdown (in/out/cache) is shown in a single segment. All metrics are enabled by default.
+A live progress bar showing how much of the context window you've used. It supports both legacy and newer payload schemas, with precise used/total token counts. Changes color as you approach the limit — green when you have plenty of room, yellow when it's getting tight, red when you're running low. Token breakdown (in/out/cache/think) is shown in a single segment. All metrics are enabled by default.
 
 ```
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M │ 42 tok/s
+Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
 ```
 
 - **Ctx** — context bar with exact token usage `used/total percentage`
 - **Reqs** — premium API requests this session
-- **in/out/cache** — cumulative input, output, and cache tokens
+- **in/out/cache/think** — cumulative input, output, cache, and reasoning tokens
 - **tok/s** — output generation speed
 - **≈$** — estimated raw API cost (what this session would cost at provider pricing)
-- **last call** (optional) — tokens used in the most recent API call
+- **lastin/lastout** (optional) — tokens used in the most recent API call
 - **Cache R/W** (optional) — separate cache read vs write counts
 
 ### Session Info
 Optionally show the session name and duration on the project line:
 
 ```
-[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 5m │ +42/-3
+[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
 ```
 
 ### Code Changes
@@ -178,12 +178,12 @@ Or run `/copilot-hud:configure` inside a Copilot session for guided setup.
 | `gitStatus.showAheadBehind` | `true` | Show `↑N ↓N` ahead/behind remote |
 | `display.showTools` | `true` | Show tool activity line |
 | `display.showSessionName` | `true` | Show session name/title |
-| `display.showSessionDuration` | `true` | Show `⏱ 5m` wall clock time |
-| `display.showTokenBreakdown` | `true` | Show `in:1.5M out:12.2k cache:1.4M` |
+| `display.showSessionDuration` | `true` | Show `⏱ 22m/1h10m` (`API/session`) |
+| `display.showTokenBreakdown` | `true` | Show `in:1.5M out:12.2k cache:1.4M think:2.1k` |
 | `display.showOutputSpeed` | `true` | Show `42 tok/s` |
 | `display.showLinesChanged` | `true` | Show `+42/-3` lines added/removed |
 | `display.showEffort` | `true` | Show effort level and multiplier in model badge |
-| `display.showLastCall` | `false` | Show last API call token counts |
+| `display.showLastCall` | `false` | Show last API call token counts as `lastin/lastout` |
 | `display.showCacheBreakdown` | `false` | Show separate cache read/write counts |
 | `display.showCost` | `true` | Show estimated raw API cost (`≈$0.42`) |
 | `display.showPromptPreview` | `false` | Show last user prompt preview |

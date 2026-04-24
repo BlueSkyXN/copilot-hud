@@ -7,8 +7,8 @@
 ```
   /Users/sky/Github/my-project [↙ main]                 Claude Opus 4.6 (3x) (high)
 ──────────────────────────────────────────────────────────────────────────────────────
-  [Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 5m │ +42/-3
-  Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M │ 42 tok/s
+  [Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
+  Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
   ✓ ✎ Edit: auth.ts | ✓ ⌨ Bash: git status ×3 | ◐ ◉ Read: index.ts
 ```
 
@@ -66,23 +66,23 @@ copilot plugin install ./
 一目了然地显示当前模型、项目路径和 Git 分支。模型徽标现在从 display_name 解析 effort 级别和倍率。路径默认显示完整绝对路径（可通过 pathLevels 0-3 配置）。代码增删行以绿/红色着色显示。
 
 ```
-[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ ⏱ 5m │ +42/-3
+[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ ⏱ 22m/1h10m │ +42/-3
 ```
 
 ### 上下文窗口与请求数
 
-实时进度条显示上下文用量。直接使用 API 提供的 used_percentage。显示精确的已用/总量 token 数。Token 明细（in/out/cache）合并在同一分段。默认全部开启。颜色随用量变化——充足时绿色，紧张时黄色，不足时红色。
+实时进度条显示上下文用量。兼容旧/新两种 payload 结构，显示精确的已用/总量 token 数。Token 明细（in/out/cache/think）合并在同一分段。默认全部开启。颜色随用量变化——充足时绿色，紧张时黄色，不足时红色。
 
 ```
-Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M │ 42 tok/s
+Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:12.2k cache:1.4M think:2.1k │ 42 tok/s
 ```
 
 - **Ctx** — 上下文进度条，精确显示 `已用/总量 百分比`
 - **Reqs** — 本次会话消耗的高级 API 请求数
-- **in/out/cache** — 累计输入、输出和缓存 token
+- **in/out/cache/think** — 累计输入、输出、缓存和思考 token
 - **tok/s** — 输出生成速度
 - **≈$** — 估算原价 API 成本（按厂商官方定价计算本次会话等价费用）
-- **last call**（可选）— 最近一次 API 调用的 token 消耗
+- **lastin/lastout**（可选）— 最近一次 API 调用的 token 消耗
 - **Cache R/W**（可选）— 缓存读/写分开统计
 
 ### 代码变更
@@ -102,7 +102,7 @@ Ctx ████░░░░░░ 70.0k/200.0k 35% │ Reqs 3 │ in:1.5M out:1
 可选在项目行显示会话名称和时长：
 
 ```
-[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 5m │ +42/-3
+[Opus 4.6 3x·high] │ /Users/sky/Github/my-project │ git:(main* ↑2) │ Creating README │ ⏱ 22m/1h10m │ +42/-3
 ```
 
 ### 实时工具活动
@@ -186,12 +186,12 @@ Copilot CLI 会话
 | `gitStatus.showAheadBehind` | `true` | 显示 `↑N ↓N` 超前/落后提交数 |
 | `display.showTools` | `true` | 是否显示工具活动行 |
 | `display.showSessionName` | `true` | 是否显示会话名称 |
-| `display.showSessionDuration` | `true` | 是否显示 `⏱ 5m` 会话时长 |
-| `display.showTokenBreakdown` | `true` | 显示 `in:1.5M out:12.2k cache:1.4M` |
+| `display.showSessionDuration` | `true` | 是否显示 `⏱ 22m/1h10m`（`API/会话`） |
+| `display.showTokenBreakdown` | `true` | 显示 `in:1.5M out:12.2k cache:1.4M think:2.1k` |
 | `display.showOutputSpeed` | `true` | 显示 `42 tok/s` |
 | `display.showLinesChanged` | `true` | 显示 `+42/-3` 代码增删行数 |
 | `display.showEffort` | `true` | 在模型徽标中显示 effort 级别和倍率 |
-| `display.showLastCall` | `false` | 显示最后一次 API 调用的 token 消耗 |
+| `display.showLastCall` | `false` | 以 `lastin/lastout` 显示最后一次 API 调用 token |
 | `display.showCacheBreakdown` | `false` | 分别显示缓存读/写计数 |
 | `display.showCost` | `true` | 显示估算原价 API 成本（`≈$0.42`） |
 | `display.showPromptPreview` | `false` | 显示最近用户输入预览 |
