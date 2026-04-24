@@ -78,11 +78,11 @@ Ask which level of detail to show:
 ### Q7: Rainbow Project Path
 
 - header: "Path Style"
-- question: "Render the project path as a rainbow gradient with background?"
+- question: "Render the project path as a rainbow gradient, or plain dim/gray text?"
 - options:
+  - "Plain (yellow) — solid color path using colors.project (default)"
   - "Rainbow + lavender bg — colorful path with subtle background"
   - "Rainbow, no bg — colorful path without background"
-  - "Solid color — classic single-color path (uses colors.project)"
 
 ### Q8: Cost Color Mode
 
@@ -134,9 +134,9 @@ Map the answers to config keys:
 
 | Q7 Selection | Config keys |
 |-------------|------------|
+| Plain (yellow) | `display.rainbowPath: false` |
 | Rainbow + lavender bg | `display.rainbowPath: true, colors.rainbowPathBg: "189"` |
 | Rainbow, no bg | `display.rainbowPath: true, colors.rainbowPathBg: "none"` |
-| Solid color | `display.rainbowPath: false` |
 
 | Q8 Selection | Config key |
 |-------------|------------|

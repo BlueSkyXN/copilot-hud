@@ -5,9 +5,16 @@
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // empty')
 TIMESTAMP=$(echo "$INPUT" | jq -r '.timestamp // 0')
+SESSION_ID=$(echo "$INPUT" | jq -r '.sessionId // empty')
 
 COPILOT_HOME="${COPILOT_HOME:-$HOME/.copilot}"
-STATE_FILE="$COPILOT_HOME/hud-state.json"
+
+# Use per-session state file when SESSION_ID is available
+if [ -n "$SESSION_ID" ]; then
+  STATE_FILE="$COPILOT_HOME/hud-state-${SESSION_ID}.json"
+else
+  STATE_FILE="$COPILOT_HOME/hud-state.json"
+fi
 
 if [ ! -f "$STATE_FILE" ]; then
   exit 0

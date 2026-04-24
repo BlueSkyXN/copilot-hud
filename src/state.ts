@@ -7,24 +7,35 @@ const COPILOT_HOME = process.env.COPILOT_HOME ?? join(homedir(), '.copilot');
 export const STATE_FILE = join(COPILOT_HOME, 'hud-state.json');
 export const MAX_RECENT_TOOLS = 8;
 
-export function readState(): HudState {
+function getStateFile(sessionId?: string): string {
+  if (sessionId) return join(COPILOT_HOME, `hud-state-${sessionId}.json`);
+  return STATE_FILE;
+}
+
+export function readState(sessionId?: string): HudState {
   const empty: HudState = { recentTools: [], sessionActive: false };
 
-  if (!existsSync(STATE_FILE)) {
-    return empty;
+  // Prefer per-session file; fall back to legacy global file
+  const candidates = sessionId
+    ? [getStateFile(sessionId), STATE_FILE]
+    : [STATE_FILE];
+
+  for (const file of candidates) {
+    if (!existsSync(file)) continue;
+    try {
+      const raw = readFileSync(file, 'utf8');
+      const parsed = JSON.parse(raw) as HudState;
+      return {
+        ...empty,
+        ...parsed,
+        recentTools: Array.isArray(parsed.recentTools) ? parsed.recentTools : [],
+      };
+    } catch {
+      continue;
+    }
   }
 
-  try {
-    const raw = readFileSync(STATE_FILE, 'utf8');
-    const parsed = JSON.parse(raw) as HudState;
-    return {
-      ...empty,
-      ...parsed,
-      recentTools: Array.isArray(parsed.recentTools) ? parsed.recentTools : [],
-    };
-  } catch {
-    return empty;
-  }
+  return empty;
 }
 
 export function summariseTools(tools: ToolEntry[]): Map<string, { count: number; lastStatus: ToolEntry['status']; lastTarget?: string }> {

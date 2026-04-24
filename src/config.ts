@@ -63,7 +63,7 @@ const DEFAULTS: HudConfig = {
     debugCtxDetails: false,
     showCacheBreakdown: false,
     showCost: true,
-    rainbowPath: true,
+    rainbowPath: false,
     costColorMode: 'dynamic',
   },
   colors: {
