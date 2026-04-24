@@ -168,19 +168,21 @@ export function renderContextLine(ctx: RenderContext): string | null {
   const cw = session.context_window;
   const parts: string[] = [];
 
-  // Context bar with exact tokens: ██░░░░░░░░ 40.0k/200.0k 20%
-  if (cw?.context_window_size) {
-    const pct = cw.used_percentage ?? 0;
-    const totalSize = cw.context_window_size;
-    const usedTokens = cw.remaining_tokens !== undefined
-      ? totalSize - cw.remaining_tokens
-      : Math.round(pct * totalSize / 100);
-    const bar = renderBar(pct, 10, getContextColor);
-    const color = getContextColor(pct);
-    parts.push(`${dim('Ctx')} ${bar} ${colorize(`${formatTokens(usedTokens)}/${formatTokens(totalSize)}`, color)} ${colorize(`${pct}%`, color)}`);
+  // Context bar with exact tokens when size exists, otherwise percent-only fallback.
+  const totalSize = cw?.context_window_size;
+  const usedPct = cw?.used_percentage
+    ?? (cw?.remaining_percentage !== undefined ? 100 - cw.remaining_percentage : undefined)
+    ?? (cw?.used_tokens !== undefined && totalSize ? Math.round(cw.used_tokens / totalSize * 100) : undefined)
+    ?? (cw?.remaining_tokens !== undefined && totalSize ? Math.round((totalSize - cw.remaining_tokens) / totalSize * 100) : undefined)
+    ?? 0;
+  const bar = renderBar(usedPct, 10, getContextColor);
+  const color = getContextColor(usedPct);
+  if (totalSize) {
+    const usedTokens = cw?.used_tokens
+      ?? (cw?.remaining_tokens !== undefined ? totalSize - cw.remaining_tokens : Math.round(usedPct * totalSize / 100));
+    parts.push(`${dim('Ctx')} ${bar} ${colorize(`${formatTokens(usedTokens)}/${formatTokens(totalSize)}`, color)} ${colorize(`${usedPct}%`, color)}`);
   } else {
-    const bar = renderBar(0, 10, getContextColor);
-    parts.push(`${dim('Ctx')} ${bar} ${colorize('0%', getContextColor(0))}`);
+    parts.push(`${dim('Ctx')} ${bar} ${colorize(`${usedPct}%`, color)}`);
   }
 
   // Premium requests

@@ -41,6 +41,7 @@ export interface SessionData {
     used_percentage?: number;
     remaining_percentage?: number;
     remaining_tokens?: number;
+    used_tokens?: number;
     context_window_size?: number;
     total_tokens?: number;
     total_input_tokens?: number;

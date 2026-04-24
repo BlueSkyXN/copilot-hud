@@ -2,7 +2,8 @@ import { readState } from './state.js';
 import { getGitStatus } from './git.js';
 import { loadConfig } from './config.js';
 import { render } from './render.js';
-import type { RenderContext, SessionData } from './types.js';
+import type { RenderContext } from './types.js';
+import { normalizeSessionData } from './normalize.js';
 import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 
@@ -22,7 +23,7 @@ export async function main(): Promise<void> {
     let stdinJson: Record<string, unknown> = {};
     try { stdinJson = JSON.parse(stdinData); } catch { /* ignore */ }
 
-    const session = stdinJson as SessionData;
+    const session = normalizeSessionData(stdinJson);
     const state = readState();
     const config = loadConfig();
 
