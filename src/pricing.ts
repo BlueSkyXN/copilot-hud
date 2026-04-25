@@ -25,6 +25,7 @@ const BUILTIN_PRICING: Record<string, ModelPricing> = {
   'claude-haiku-4.5':  { input: 1.25, output: 5.00,  cacheRead: 0.10 },
 
   // OpenAI GPT
+  'gpt-5.5':       { input: 5.00, output: 50.00, cacheRead: 0.50 },
   'gpt-5.4':       { input: 2.50, output: 15.00, cacheRead: 0.25 },
   'gpt-5.4-mini':  { input: 0.75, output: 4.50,  cacheRead: 0.075 },
   'gpt-5.3-codex': { input: 1.75, output: 14.00, cacheRead: 0.175 },
