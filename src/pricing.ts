@@ -25,6 +25,7 @@ const BUILTIN_PRICING: Record<string, ModelPricing> = {
   'claude-haiku-4.5':  { input: 1.25, output: 5.00,  cacheRead: 0.10 },
 
   // OpenAI GPT
+  'gpt-5.5':       { input: 5.00, output: 30.00, cacheRead: 0.50 },
   'gpt-5.4':       { input: 2.50, output: 15.00, cacheRead: 0.25 },
   'gpt-5.4-mini':  { input: 0.75, output: 4.50,  cacheRead: 0.075 },
   'gpt-5.3-codex': { input: 1.75, output: 14.00, cacheRead: 0.175 },
@@ -32,8 +33,8 @@ const BUILTIN_PRICING: Record<string, ModelPricing> = {
   'gpt-5.2':       { input: 1.75, output: 14.00, cacheRead: 0.175 },
   'gpt-5.1':       { input: 1.25, output: 10.00, cacheRead: 0.125 },
   'gpt-5-mini':    { input: 0.25, output: 2.00,  cacheRead: 0.025 },
-  'gpt-4.1':       { input: 2.00, output: 8.00,  cacheRead: 0.20 },
-  'gpt-4o':        { input: 2.50, output: 10.00, cacheRead: 0.25 },
+  'gpt-4.1':       { input: 2.00, output: 8.00,  cacheRead: 0.50 },
+  'gpt-4o':        { input: 2.50, output: 10.00, cacheRead: 1.25 },
 
   // Google Gemini
   'gemini-2.5-pro':  { input: 1.25, output: 10.00, cacheRead: 0.125 },
