@@ -18,5 +18,11 @@ if [ ! -f "$STATE_FILE" ]; then
   exit 0
 fi
 
-CURRENT=$(cat "$STATE_FILE")
-echo "$CURRENT" | jq '.sessionActive = false' > "$STATE_FILE"
+# For per-session files, just delete them — they are not needed after the session ends.
+# The global fallback file (hud-state.json) is kept and marked inactive for compatibility.
+if [ -n "$SESSION_ID" ]; then
+  rm -f "$STATE_FILE"
+else
+  CURRENT=$(cat "$STATE_FILE")
+  echo "$CURRENT" | jq '.sessionActive = false' > "$STATE_FILE"
+fi

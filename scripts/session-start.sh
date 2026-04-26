@@ -31,5 +31,11 @@ jq -n \
     sessionActive: true
   }' > "$STATE_FILE"
 
-# Clean up inactive per-session state files older than 24 hours
-find "$COPILOT_HOME" -maxdepth 1 -name 'hud-state-*.json' -mmin +1440 -exec rm -f {} \; 2>/dev/null || true
+# Clean up inactive per-session state files (crash recovery: remove any leftover inactive files)
+for _f in "$COPILOT_HOME"/hud-state-*.json; do
+  [ -f "$_f" ] || continue
+  _active=$(jq -r '.sessionActive | tostring' "$_f" 2>/dev/null)
+  if [ "$_active" = "false" ]; then
+    rm -f "$_f"
+  fi
+done
